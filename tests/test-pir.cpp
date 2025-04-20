@@ -28,7 +28,7 @@ void test_pir()
     int32_t N1 = 128; // 128; // 64;
     int32_t N2 = N / 2 / N1;
     std::cout << "Packing number: " << r << std::endl;
-    std::cout << "Database configuration: " << r * N/2 << " * 8 KB, ";
+    std::cout << "Database configuration: " << r * N/2 << " * 8 KB, "; 
     std::cout << "total database size " << 16 * r << " MB" << std::endl;
     std::cout << "BSGS parameters: (N1: " << N1 << ", N2: " << N2 << ")" << std::endl << std::endl;
     std::cout << "target_col: " << target_col << ", target_packing: " << target_packing << std::endl << std::endl;
@@ -61,6 +61,13 @@ for (size_t k = 0; k < r; k++)
     auto stop_prep = std::chrono::high_resolution_clock::now();
     glapsed_prep += std::chrono::duration_cast<std::chrono::milliseconds>(stop_prep - start_prep);
 }
+    cout<<"data.size(): "<<data.size()<<" * "<<data[0].size()<<endl;
+    /*
+    for(size_t i=0;i<data.size();i++){
+        for(size_t j=0;j<data[0].size();j++){
+            cout<<data[i][j]<<" ";
+        }cout<<endl;
+    }*/
     std::cout << " server preprocessing costs " << glapsed_prep.count() << " ms." << std::endl;
 
 
@@ -78,6 +85,10 @@ for (size_t k = 0; k < r; k++)
     auto glapsed_qu = std::chrono::duration_cast<std::chrono::microseconds>(stop_qu - start_qu);
     std::cout << " query costs " << glapsed_qu.count() << " us." << std::endl;
 
+    //这里是两个query1 和queryGsw
+    auto querysize = (query1[0].getLength()*2*ceil(log2(query1[0].getModulus()))+ query1[1].getLength()*2*ceil(log2(query1[1].getModulus())))/8/1024;
+    querysize = querysize + queryGsw.getEllnum()*2*2*queryGsw.getLength()*ceil(log2(queryGsw.getModulus()))/8/1024;
+    cout<<" online server query size "<<querysize<<" KB."<<endl;
 
     uint64_t length = queryKey.getLength();
     // uint64_t moudlus = answerKey.getModulus();
@@ -116,6 +127,9 @@ for (size_t i = 0; i < ntimes; i++)
 }
     auto stop = std::chrono::high_resolution_clock::now();
 
+    // result_output 是 server Response 内容
+    cout<<" online server response size "<<result_output.getLength()*2*ceil(log2(result_output.getModulus()))/8/1024<<" KB."<<endl;
+
     auto glapsed = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << " online server response costs " << glapsed.count() << " us." << std::endl;
 
@@ -129,7 +143,7 @@ for (size_t i = 0; i < ntimes; i++)
 
     // output result
     std::cout << std::endl;
-    // std::cout << "the recovered value is " << decryptd_message[row] << std::endl;
+    //std::cout << "the recovered value is " << decryptd_message[row] << std::endl;
     showLargeVector(decryptd_message, "the recovered result = ");
 }
 
